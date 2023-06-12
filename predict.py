@@ -37,9 +37,9 @@ labels = {'CMUT1': 0.0928059068718,    # Matched (origNTS - pos - newNTS)
           }
 
 bst = XGBRegressor()  # init model
-bst.load_model('200_1.bin')  # load data
+bst.load_model('nanoenv_cas9_wna.bin')  # load data
 
-X = pd.read_csv('combined_wna5e-4_X.csv')
+X = pd.read_csv('input_features.csv')
 y_pred = bst.predict(X)
 
 y_true = np.repeat(list(labels.values()), 24)
