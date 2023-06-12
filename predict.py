@@ -3,7 +3,20 @@ import pandas as pd
 import numpy as np
 from scipy.stats import spearmanr, pearsonr
 
+# This Python script uses the following data and model files:
+# 1. An input CSV file containing 672 datapoints
+#    from the crisprSQL dataset in the paper
+input_feat_loc = 'data/input_features.csv'
+# 2. XGBoost model containing Nanoenv-Cas9-WNA which predicts
+#    CRISPR-Cas9 (off-)target cleavage activity.
+model_bin_loc = 'models/nanoenv_cas9_wna.bin'
 
+# We will save the predictions in the "out" folder
+out_loc = 'out/preds.csv'
+###########################
+
+
+# True CRISPR-Cas9 cleavage activity values from Jones Jr et al.
 labels = {'CMUT1': 0.0928059068718,    # Matched (origNTS - pos - newNTS)
           'CMUT2': 0.0787201649863,    # A19C
           'CMUT3': 0.119446527474,     # C18G
@@ -36,14 +49,23 @@ labels = {'CMUT1': 0.0928059068718,    # Matched (origNTS - pos - newNTS)
           'CMUT30': 0.0235738673331    # T14C
           }
 
-bst = XGBRegressor()  # init model
-bst.load_model('nanoenv_cas9_wna.bin')  # load data
-
-X = pd.read_csv('input_features.csv')
-y_pred = bst.predict(X)
-
+# Prepare true activity label values
 y_true = np.repeat(list(labels.values()), 24)
 
-print('predictions:', y_pred)
-print('Spearman:', spearmanr(y_pred, y_true)[0])
-print('Ppearman:', pearsonr(y_pred, y_true)[0])
+# Read input features
+X = pd.read_csv(input_feat_loc)
+
+# Load Nanoenv-Cas9-WNA
+bst = XGBRegressor()
+bst.load_model(model_bin_loc)
+
+# predict CRISPR-Cas9 cleavage activity values
+y_pred = bst.predict(X)
+
+# Print results
+print('Predicted CRISPR-Cas9 Cleavage Activities:', y_pred)
+print('Spearman correlation:', spearmanr(y_pred, y_true)[0])
+print('Pearson correlation:', pearsonr(y_pred, y_true)[0])
+
+# Save the predictions
+pd.DataFrame(y_pred).to_csv(out_loc)
