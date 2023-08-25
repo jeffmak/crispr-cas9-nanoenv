@@ -34,20 +34,20 @@ Containing Spearman and Pearson correlation performances, this repository also h
 
 ## Demo Scripts
 Sample Python scripts for users to play around with.
-|  File  | Description  | Sample Output | Command |
-| -------|------------- | ------------- | ------- |
-| demo_predict_one.py | Uses Nanoenv-Cas9-WNA to make a prediction for each of the 672 CRISPR-Cas9 (off-)target cleavage activity datapoint in input_features.csv | [out/demo_predict_one_output.txt](out/demo_predict_one_output.txt) | ```python demo_predict_one.py``` |
-| demo_fig2de.py | Quantifies the Spearman and Pearson correlation performance of Nanoenv-Cas9-WNA (set n=10⁷ to reproduce Figures 2D-E) | [out/fig2d.pdf](out/fig2d.pdf), [out/fig2e.csv](out/fig2e.csv) |  ```python demo_fig2de.py``` |
+|  File  | Description  | Sample Output | Command | Expected Run Time |
+| -------|------------- | ------------- | ------- | ----------------- |
+| demo_predict_one.py | Uses Nanoenv-Cas9-WNA to make a prediction for each of the 672 CRISPR-Cas9 (off-)target cleavage activity datapoint in input_features.csv | [out/demo_predict_one_output.txt](out/demo_predict_one_output.txt) | ```python demo_predict_one.py``` | Instant |
+| demo_fig2de.py | Quantifies the Spearman and Pearson correlation performance of Nanoenv-Cas9-WNA (set n=10⁷ to reproduce Figures 2D-E) | [out/fig2d.pdf](out/fig2d.pdf), [out/fig2e.csv](out/fig2e.csv) |  ```python demo_fig2de.py``` | Instant (~12 hours if n=10^7) |
 
 ## Reproducibility Scripts
 Python scripts for reporducing main manuscript figures.
-|  File  | Description  | Expected Output | Command |
-| -------|------------- | --------------- | ------- |
-| fig2a.py | Python script for reproducing Figure 2A | [out/fig2a.pdf](out/fig2a.pdf) |  ```python fig2a.py``` |
-| fig2b.py | Python script for reproducing Figure 2B | [out/fig2b.pdf](out/fig2b.pdf) |  ```python fig2b.py``` |
-| fig2c.py | Python script for reproducing Figure 2C | [out/fig2c.pdf](out/fig2c.pdf) |  ```python fig2c.py``` |
-| fig3.py  | Python script for reproducing Figure 3  | [out/fig3.pdf](out/fig3.pdf)   |  ```python fig3.py``` |
-| fig4a.py | Python script for reproducing Figure 4A | [out/fig4a.pdf](out/fig4a.pdf) |  ```python fig4a.py``` |
+|  File  | Description  | Expected Output | Command | Expected Run Time |
+| -------|------------- | --------------- | ------- | ----------------- |
+| fig2a.py | Python script for reproducing Figure 2A | [out/fig2a.pdf](out/fig2a.pdf) |  ```python fig2a.py``` | Instant |
+| fig2b.py | Python script for reproducing Figure 2B | [out/fig2b.pdf](out/fig2b.pdf) |  ```python fig2b.py``` | Instant |
+| fig2c.py | Python script for reproducing Figure 2C | [out/fig2c.pdf](out/fig2c.pdf) |  ```python fig2c.py``` | Instant |
+| fig3.py  | Python script for reproducing Figure 3  | [out/fig3.pdf](out/fig3.pdf)   |  ```python fig3.py```  | Instant |
+| fig4a.py | Python script for reproducing Figure 4A | [out/fig4a.pdf](out/fig4a.pdf) |  ```python fig4a.py``` | Instant |
 
 ## Related Zenodo Repositories
 |   DOI  | Description |  URL |
