@@ -34,9 +34,9 @@ Containing Spearman and Pearson correlation performances, this repository also h
 
 ## Demo Scripts
 Sample Python scripts for users to play around with.
-|  File  | Description  |
-| -------|------------- |
-| demo_predict_one.py | Uses Nanoenv-Cas9-WNA to make a prediction for each of the 672 CRISPR-Cas9 (off-)target cleavage activity datapoint in input_features.csv |
+|  File  | Description  | Expected Output |
+| -------|------------- | --------------- |
+| demo_predict_one.py | Uses Nanoenv-Cas9-WNA to make a prediction for each of the 672 CRISPR-Cas9 (off-)target cleavage activity datapoint in input_features.csv | 
 | demo_fig2de.py | Quantifies the Spearman and Pearson correlation performance of Nanoenv-Cas9-WNA (set n=10⁷ to reproduce Figures 2D-E) |
 
 ## Reproducibility Scripts
@@ -54,6 +54,9 @@ Python scripts for reporducing main manuscript figures.
 | -------|-------------|------|
 | 10.5281/zenodo.7837070 | Structural stability analysis summary | https://zenodo.org/record/7837070 |
 | 10.5281/zenodo.8028221 | CRISPR-Cas9 STING Descriptor Values | https://zenodo.org/record/8028221 |
+
+# Installation
+Install the required Python packages as listed below.
 
 # Requirements
 ```matplotlib==3.5.3 numpy==1.24.3 shap==0.38.1 scipy==1.7.3 scikit-learn==1.0.2 pandas==1.5.2 xgboost==1.5.0```
