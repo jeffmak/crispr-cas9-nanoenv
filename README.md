@@ -1,4 +1,4 @@
-# Code accompanying "Accurate prediction of CRISPR-Cas9 off-target activity by learning to utilize protein 3D nanoenvironment descriptors"
+# Code accompanying "Learning to utilize internal protein 3D nanoenvironment descriptors in predicting CRISPR-Cas9 off-target activity"
 
 This Github repository contains sample Python scripts and CSV datasets relating to the trained XGBoost model Nanoenv-Cas9-WNA produced in the paper "Accurate prediction of CRISPR-Cas9 off-target activity by learning to utilize protein 3D nanoenvironment descriptors".
 
