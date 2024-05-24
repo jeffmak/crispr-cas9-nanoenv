@@ -22,7 +22,7 @@ This repository contains the following CSV files in the ```data``` folder:
 | fig4f.png | Raw image used for Figure 4F (PAM-distal visualization) |
 | fig4g.png | Raw image used for Figure 4G (PAM-proximal visualization) |
 | hyperparam_search_5cv_results.csv | Performance results obtained after grid search and five-fold cross validation of the ML pipeline |
-| residue_dists.csv | Pairwise Cα-Cα residue distances for residues in STING_CRISPR |
+| residue_dists.csv | Pairwise Cα-Cα residue distances for the 23 residues associated with STING_CRISPR's input features |
 | X.csv | STING_CRISPR input feature values for all 672 PDB snapshots |
 
 
