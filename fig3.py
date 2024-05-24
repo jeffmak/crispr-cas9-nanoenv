@@ -1,153 +1,196 @@
 import pandas as pd
+import joblib
 import seaborn as sns
-import numpy as np
-
-from matplotlib.gridspec import GridSpec
-from matplotlib.ticker import MaxNLocator
 import matplotlib.pyplot as plt
+import matplotlib.transforms as mtransforms
 
-list21 = ['Cas9_839_ep_average_WNADist', 'Cas9_734_density_CA_5_SW_5',
-          'Cas9_733_dssp_kappa', 'Cas9_837_acc_isol_surfv', # kappa -> dssp_kappa
-          'Cas9_837_stride_accessibility', 'Cas9_837_entd_CA_6_WNADist', # accessibility -> stride_accessibility
-          'Cas9_734_dssp_kappa', 'Cas9_1016_sponge_CA_7_SW_5', # kappa -> dssp_kappa
-          'Cas9_1015_dssp_kappa', 'Cas9_732_entd_LHA_5_IFR_WNASurf', # kappa -> dssp_kappa
-          'Cas9_406_sponge_CA_7_IFR_SW_3', 'Cas9_271_dssp_kappa', # kappa -> dssp_kappa
-          'Cas9_734_density_CA_5_IFR_SW_5', 'Cas9_731_entd_LHA_5_WNASurf',
-          'Cas9_730_acc_ifr_surfv', 'Cas9_837_acc_complex_surfv',
-          'Cas9_925_acc_ifr_surfv', 'Cas9_838_entd_CA_6_WNADist',
-          'Cas9_136_cpo_85_30_CB_WNADist', 'Cas9_317_density_LHA_7_IFR_SW_5',
-          'Cas9_731_wcn_avg_weighted_contact_number_k_5_WNADist'] # avg_weighted_contact_number_k_5_WNADist -> wcn_avg_weighted_contact_number_k_5_WNADist
+##################
+# File locations
+parent_dir = './'
+model_loc = f'{parent_dir}models/STING_CRISPR.joblib'
+X_loc = f'{parent_dir}data/X.csv'
+cmut_activity_loc = f'{parent_dir}data/activity_labels.csv'
 
-def fill_protein_domains(ax, height):
-  # color coding from https://pubs.acs.org/doi/10.1021/acs.biochem.1c00354
-  ax.fill_between([0,60], 0, height, color='blue', alpha=0.2) # RuvC I
-  ax.fill_between([60,94], 0, height, color='magenta', alpha=0.2) # Bridge Helix
-  ax.fill_between([94,180], 0, height, color='lightgrey', alpha=0.2) # Rec I
-  ax.fill_between([180,308], 0, height, color='grey', alpha=0.2) # Rec II
-  ax.fill_between([308,496], 0, height, color='lightgrey', alpha=0.2) # Rec I
-  ax.fill_between([496,718], 0, height, color='lightcoral', alpha=0.2) # Rec III
-  ax.fill_between([718,775], 0, height, color='blue', alpha=0.2) # RuvC II
-  ax.fill_between([775,909], 0, height, color='green', alpha=0.2) # HNH*
-  ax.fill_between([909,1099], 0, height, color='blue', alpha=0.2) # RuvC
-  ax.fill_between([1099,1368], 0, height, color='yellow', alpha=0.2) # PAM-interacting
+fig3_save_loc = f'{parent_dir}out/fig3.pdf'
+
+################
+# Helper functions
+def get_pos_name(nuc):
+    """
+    Prettify a residue/nucleotide of the format [A-D]{0-9}+.
+    e.g., A100 -> Cas9_100
+          ...
+    In practice most of this is dead code since we
+    only deal with the Cas9 protein, i.e., chain A of the PDB file.
+    """
+    chain = nuc[0]
+    pos = int(nuc[1:])
+    if chain == 'B' or chain == 'D':
+        bd_pos = 21 - pos
+        if bd_pos <= 0:
+            bd_pos -= 1
+            bd_pos_str = str(bd_pos)
+        else:
+            bd_pos_str = '+'+str(bd_pos)
+        if chain == 'B':
+            return 'sgRNA_'+str(bd_pos_str)
+        else:
+            return 'NTS_'+str(bd_pos_str)
+    elif chain == 'C':
+        c_pos = pos - 10
+        if c_pos <= 0:
+            c_pos -= 1
+            c_pos_str = str(c_pos)
+        else:
+            c_pos_str = '+'+str(c_pos)
+        return 'TS_'+str(c_pos_str)
+    else:
+        return 'Cas9_'+nuc[1:]
+
+##################
+# Load relevant data
+
+# 1. Activity data
+cmut_activity_df = pd.read_csv(cmut_activity_loc)
+labels = {}
+for _, row in cmut_activity_df.iterrows():
+    labels[row['CMUT']] = row['Activity']
+
+# 2. Interface names
+interface_name = {'CMUT1': 'ON',
+                'CMUT2': 'A19C',
+                'CMUT3': 'C18G',
+                'CMUT4': 'A19T',
+                'CMUT5': 'C18A',
+                'CMUT7': 'C18T',
+                'CMUT8': 'A19G',
+                'CMUT9': 'C16G',
+                'CMUT10': 'G17A',
+                'CMUT11': 'A11T',
+                'CMUT12': 'C16T',
+                'CMUT13': 'G17C',
+                'CMUT14': 'A12G',
+                'CMUT16': 'A11G',
+                'CMUT17': 'T14A',
+                'CMUT18': 'A12C',
+                'CMUT19': 'G17T',
+                'CMUT20': 'A13G',
+                'CMUT21': 'C16A',
+                'CMUT22': 'A11C',
+                'CMUT23': 'A15G',
+                'CMUT24': 'A12T',
+                'CMUT25': 'A13C',
+                'CMUT26': 'A13T',
+                'CMUT27': 'A15T',
+                'CMUT28': 'T14G',
+                'CMUT29': 'A15C',
+                'CMUT30': 'T14C'
+                }
+
+# 3. Mapping for Figure 3C
+RNA_dict = {
+    'A': 'U',
+    'T': 'A',
+    'C': 'G',
+    'G': 'C'
+}
+
+# Number of input model features
+n_final_feats = 30
+
+##################
+# Create figure
+fig, axd = plt.subplot_mosaic([['A','A'],['B','C']], # ['Filter'],
+                            constrained_layout=True, figsize=(8, 16/3))
+
+# Load STING_CRISPR model
+model = joblib.load(model_loc)
+
+# Load STING_CRISPR input features
+X_df = pd.read_csv(X_loc)
+
+pretty_feature_names = []
+for feat in X_df.columns:
+    feat_lst = feat.split('_')
+    feat_lst[0] = get_pos_name(feat_lst[0])
+    pretty_feature_names.append('_'.join(feat_lst))
+
+X_df.columns = pretty_feature_names
+
+X = X_df.to_numpy()
+X_672 = X[:672]
+X_test = X_672.reshape((28, 24, n_final_feats))[:,20:,:].reshape((28*4, n_final_feats))
+y_test_pred = model.steps[-1][-1].predict(X_test).reshape((28, 4))
+
+######### Plot A ##########
+y_test_dict = {'CMUT': [],
+                'Guide-target Interface': [],
+                'Activity': [],
+                'Snapshot': [],
+                'Predicted Activity': []}
+
+for i, (cmut, activity) in enumerate(labels.items()):
+    for j in range(4):
+        y_test_dict['CMUT'].append(cmut)
+        y_test_dict['Guide-target Interface'].append(interface_name[cmut])
+        y_test_dict['Activity'].append(activity)
+        y_test_dict['Snapshot'].append(20+j)
+        y_test_dict['Predicted Activity'].append(y_test_pred[i][j])
+y_test_df = pd.DataFrame(y_test_dict).sort_values('Activity')
+
+y_test_df['Position'] = y_test_df['Guide-target Interface'].apply(lambda s: s if s == 'ON' else s[1:-1])
+y_test_df['Test Squared Error'] = (y_test_df['Predicted Activity'] - y_test_df['Activity']) ** 2 
+
+sns.boxplot(x='Guide-target Interface', y='Predicted Activity',
+            data=y_test_df, ax=axd['A'])
+ax = sns.scatterplot(x='CMUT', y='Activity', data=y_test_df, s=30, ax=axd['A'])
+axd['A'].axhline(labels['CMUT1'], color='k', linestyle=':')
+plt.setp(ax.xaxis.get_majorticklabels(), rotation=90)
+
+for label, ax in axd.items():
+    # label physical distance to the left and up:
+    trans = mtransforms.ScaledTranslation(-20/72, 7/72, fig.dpi_scale_trans)
+    ax.text(0.0, 1.0, label, transform=ax.transAxes + trans,
+            fontsize=25, va='bottom', fontfamily='sans-serif', 
+            weight='bold')
 
 
-x_name = 'CRISPR-Cas9 Amino Acid Residues'
-list21_res = [int(s.split('_')[1]) for s in list21]
+######### Plot B ##########
+ax = sns.barplot(x='Position',y='Test Squared Error', 
+            data=y_test_df, 
+            order=['ON','19','18','17','16','15','14','13','12','11'],
+            ax=axd['B'])
 
-fig=plt.figure(figsize=(10,8/3*4))
 
-gs=GridSpec(4,3) # 4 rows, 3 columns
+######### Plot C ##########
+_X = X[:672].reshape((28, 24, n_final_feats))[:,20:,:].reshape((28*4, n_final_feats))
+preds = model.steps[-1][1].predict(_X)
 
-ax1=fig.add_subplot(gs[0,:]) # First row, span all columns
-ax3=fig.add_subplot(gs[1,0]) # Second row, first column
-ax4=fig.add_subplot(gs[1,1]) # Second row, second column
-ax5=fig.add_subplot(gs[1,2]) # Second row, third column
-ax2=fig.add_subplot(gs[2,:]) # Third row, span all columns
-ax6=fig.add_subplot(gs[3,0]) # Fourth row, first column
-ax7=fig.add_subplot(gs[3,1]) # Fourth row, second column
-ax8=fig.add_subplot(gs[3,2]) # Fourth row, third column
+# construct df
+results_dict = {'CMUT': [],
+                'Mutation': [],
+                'Activity': []}
+for cmut, activity in labels.items():
+    for _ in range(4):
+        results_dict['CMUT'].append(cmut)
+        results_dict['Activity'].append(activity)
+        results_dict['Mutation'].append(interface_name[cmut])
 
-# locations: 0, 49, 99, ..., 1367
-# names: 1, 50, 100, 1368
-space = 100
-locs = [0]
-x = space-1
-while x < 1367:
-  locs.append(x)
-  x += space
+results_df = pd.DataFrame(results_dict)
+results_df['Predicted'] = preds
+results_df['Test Squared Error'] = (results_df['Predicted'] - results_df['Activity']) ** 2
+mut_df = results_df[results_df['Mutation'] != 'ON'].copy()
+mut_df['Mismatch Type'] = mut_df['Mutation'].str[0].apply(lambda s: RNA_dict[s]) + ':d' + mut_df['Mutation'].str[-1]
 
-y_height = 9
-df0 = pd.DataFrame({x_name: list21_res})
-fig = sns.histplot(x=x_name, data=df0, bins=80, ax=ax1)
-ax1.axhline(y=1.5, linestyle=':', color='black')
-fill_protein_domains(ax1, y_height)
-ax1.set_xlim(1, 1368)
-ax1.set_ylim(0, y_height)
-ax1.set_xlabel('CRISPR-Cas9 Amino Acid Residue')
-ax1.set_ylabel("Number of Features")
-ax1.set_xticks(locs)
-ax1.set_xticklabels([str(x + 1) for x in locs])
+ax2 = sns.barplot(x='Mismatch Type', y='Test Squared Error', data=mut_df, ax=axd['C'])
+ax2.set_xticklabels(ax2.get_xticklabels(), rotation=45)
 
-df = pd.read_csv("data/first_fold_shap_values.csv")
-df.rename(columns={'Cas9_733_kappa': 'Cas9_733_dssp_kappa',
-                  'Cas9_837_accessibility': 'Cas9_837_stride_accessibility',
-                  'Cas9_734_kappa': 'Cas9_734_dssp_kappa',
-                  'Cas9_1015_kappa': 'Cas9_1015_dssp_kappa',
-                  'Cas9_271_kappa': 'Cas9_271_dssp_kappa',
-                  'Cas9_731_avg_weighted_contact_number_k_5_WNADist': 'Cas9_731_wcn_avg_weighted_contact_number_k_5_WNADist'}, inplace=True)
+ax_ylim = ax.get_ylim()
+ax2_ylim = ax2.get_ylim()
+min_ylim = min(ax_ylim[0], ax2_ylim[0])
+max_ylim = max(ax_ylim[1], ax2_ylim[1])
+ax.set_ylim((min_ylim, max_ylim))
+ax2.set_ylim((min_ylim, max_ylim))
 
-# g1 = [730, 731, 732, 733, 734]
-# g2 = [837, 838, 839]
-# g3 = [1015, 1016]
-
-max_y = 4.1
-sns.countplot(x=x_name, data=df0[(df0[x_name] >= 730) & (df0[x_name] < 735)],
-              color=sns.color_palette()[0], ax=ax3)
-ax3.yaxis.set_major_locator(MaxNLocator(integer=True))
-ax3.set_ylim(0, max_y)
-ax3.set_xlabel('CRISPR-Cas9 Amino Acid Residue')
-ax3.set_ylabel("Number of Features")
-
-sns.countplot(x=x_name, data=df0[(df0[x_name] >= 837) & (df0[x_name] < 840)],
-              color=sns.color_palette()[0], ax=ax4)
-ax4.yaxis.set_major_locator(MaxNLocator(integer=True))
-ax4.set_ylim(0, max_y)
-ax4.set_xlabel('CRISPR-Cas9 Amino Acid Residue')
-ax4.set_ylabel("Number of Features")
-
-sns.countplot(x=x_name, data=df0[(df0[x_name] >= 1015) & (df0[x_name] < 1017)],
-             color=sns.color_palette()[0], ax=ax5)
-ax5.yaxis.set_major_locator(MaxNLocator(integer=True))
-ax5.set_ylim(0, max_y)
-ax5.set_xlabel('CRISPR-Cas9 Amino Acid Residue')
-ax5.set_ylabel("Number of Features")
-
-df_t = df.transpose().reset_index()
-df_t['index'] = df_t['index'].apply(lambda s: int(s.split('_')[1]))
-res_shap_vals = df_t.groupby('index').sum().reindex().transpose()
-df2 = pd.DataFrame(res_shap_vals.abs().mean())
-df2.columns = ['importance']
-df3 = df2.reindex(pd.Index(np.arange(1, 1369, 1), name='residue'))\
-         .fillna(0).reset_index()
-df3['importance_cumsum'] = df3['importance'].cumsum()
-
-sns.barplot(x='residue', y='importance', data=df3, ec='black', ax=ax2)
-ax2a = ax2.twinx()
-fig = sns.lineplot(x='residue', y='importance_cumsum', data=df3, ax=ax2a)
-ax2.set_xticks(locs)
-ax2.set_xticklabels([str(x + 1) for x in locs])
-ylims = ax2.get_ylim()
-fill_protein_domains(ax2, ylims[1])
-ax2.set_xlim(0, 1368)
-ax2.set_ylim(ylims)
-ax2a.set_ylim(0)
-ax2.set_xlabel('CRISPR-Cas9 Amino Acid Residue')
-ax2.set_ylabel('SHAP CRISPR-Cas9\nResidue Importance')
-ax2a.set_ylabel('Cumulative SHAP\nCRISPR-Cas9 Residue\nImportance')
-
-#######
-sns.barplot(x='residue', y='importance',
-            data=df3[(df3['residue'] >= 730) & (df3['residue'] < 735)],
-            color=sns.color_palette()[0], ax=ax6)
-ax6.set_ylim(ylims)
-ax6.set_xlabel('CRISPR-Cas9 Amino Acid Residue')
-ax6.set_ylabel('SHAP CRISPR-Cas9\nResidue Importance')
-
-sns.barplot(x='residue', y='importance',
-            data=df3[(df3['residue'] >= 837) & (df3['residue'] < 840)],
-            color=sns.color_palette()[0], ax=ax7)
-ax7.set_ylim(ylims)
-ax7.set_xlabel('CRISPR-Cas9 Amino Acid Residue')
-ax7.set_ylabel('SHAP CRISPR-Cas9\nResidue Importance')
-
-sns.barplot(x='residue', y='importance',
-            data=df3[(df3['residue'] >= 1015) & (df3['residue'] < 1017)],
-            color=sns.color_palette()[0], ax=ax8)
-ax8.set_ylim(ylims)
-ax8.set_xlabel('CRISPR-Cas9 Amino Acid Residue')
-ax8.set_ylabel('SHAP CRISPR-Cas9\nResidue Importance')
-
-plt.tight_layout()
-plt.savefig("out/fig3.pdf")
+plt.savefig(fig3_save_loc)
 plt.close()

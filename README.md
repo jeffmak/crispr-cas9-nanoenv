@@ -1,65 +1,59 @@
 # Code accompanying "Learning to utilize internal protein 3D nanoenvironment descriptors in predicting CRISPR-Cas9 off-target activity"
 
-This Github repository contains sample Python scripts and CSV datasets relating to the trained XGBoost model Nanoenv-Cas9-WNA produced in the paper "Accurate prediction of CRISPR-Cas9 off-target activity by learning to utilize protein 3D nanoenvironment descriptors".
+This Github repository contains sample Python scripts and CSV datasets relating to the trained extra trees model STING_CRISPR produced in the paper "Learning to utilize internal protein 3D nanoenvironment descriptors in predicting CRISPR-Cas9 off-target activity".
 
-![Method](figure1.png)
+![Method](graphical_abstract.png)
 
 ## Models
-This repository contains the following models in the ```model``` folder:
+This repository contains the following models in the ```models``` folder:
 |      File      |  Description   |
 | ---------------|--------------- |
-| nanoenv_cas9_wna.bin | XGBoost model, i.e., Nanoenv-Cas9-WNA |
+| STING_CRISPR.joblib | A trained three-stage ML pipeline containing StandardScaler, a SelectFromModel feature selector with XGBoost as the base model, and an extra trees model (i.e., STING_CRISPR) |
 
 ## Data
 This repository contains the following CSV files in the ```data``` folder:
 
 | File | Description |
 | --------------|------------ |
-| activity_labels.csv | CRISPR-Cas9 off-target cleavage activities for the 28 (off-)target molecular dynamics trajectories |
+| activity_labels.csv | CRISPR-Cas9 off-target cleavage activities for the 28 studied (off-)target molecular dynamics trajectories |
 | cas9_nucleotide_distances.csv | Distances between heteroduplex-proximal reisdues and heteroduplex nucleotides for all CMUT trajectories |
-| example_input.csv | Input feature values required for Nanoenv-Cas9-WNA for the first PDB snapshot for trajectory CMUT1 |
-| first_fold_shap_values.csv | SHAP values generated for the 672 PDB snapshots using Nanoenv-Cas9-WNA |
-| input_features.csv | Input feature values required for Nanoenv-Cas9-WNA for all 672 PDB snapshots |
-
-Containing Spearman and Pearson correlation performances, this repository also has the following files in the ```data/perf``` folder:
-
-| File | Description |
-| --------------|------------ |
-| CFD_scores.csv | Predicted CFD scores for the 28 CMUT trajectories |
-| CNN_std_scores.csv | Predicted CNN_std scores for the 28 CMUT trajectories |
-| DeepCRISPR_scores.csv | Predicted CNN_std scores for the 28 CMUT trajectories |
-| SpCas9_kinetic_model_kclv_out.csv | Predicted SpCas9KineticModel scores (https://www.nature.com/articles/s41467-022-28994-2) for the 28 CMUT trajectories |
-| uCRISPR_scores.out | Predicted uCRISPR scores for the 28 CMUT trajectories |
+| desc2desctype.csv | Lists the parent descriptor class, aggregation type and the (neighbor) descriptor class for all studied STING descriptors
+| example_input.csv | STING_CRISPR input feature values for the first PDB snapshot for trajectory CMUT1 |
+| fig4f.png | Raw image used for Figure 4F (PAM-distal visualization) |
+| fig4g.png | Raw image used for Figure 4G (PAM-proximal visualization) |
+| hyperparam_search_5cv_results.csv | Performance results obtained after grid search and five-fold cross validation of the ML pipeline |
+| residue_dists.csv | Pairwise Cα-Cα residue distances for residues in STING_CRISPR |
+| X.csv | STING_CRISPR input feature values for all 672 PDB snapshots |
 
 
 ## Demo Scripts
 Sample Python scripts for users to play around with.
-|  File  | Description  | Sample Output | Command | Expected Run Time |
-| -------|------------- | ------------- | ------- | ----------------- |
-| demo_predict_one.py | Uses Nanoenv-Cas9-WNA to make a prediction for each of the 672 CRISPR-Cas9 (off-)target cleavage activity datapoint in input_features.csv | [out/demo_predict_one_output.txt](out/demo_predict_one_output.txt) | ```python demo_predict_one.py``` | Instant |
-| demo_fig2de.py | Quantifies the Spearman and Pearson correlation performance of Nanoenv-Cas9-WNA (set n=10⁷ to reproduce Figures 2D-E) | [out/fig2d.pdf](out/fig2d.pdf), [out/fig2e.csv](out/fig2e.csv) |  ```python demo_fig2de.py``` | Instant (~12 hours if n=10^7) |
+|  File  | Description  | Command |
+| -------|------------- | ------- |
+| demo_predict_one.py | Uses STING_CRISPR to make a prediction for the nanoenvironment of the first PDB snapshot obtained in the on-target trajectory, i.e., CMUT1 | ```python demo_predict_one.py``` |
+| model_perf.py | Quantifies STING_CRISPR model performance |  ```python model_perf.py``` |
 
 ## Reproducibility Scripts
-Python scripts for reporducing main manuscript figures.
-|  File  | Description  | Expected Output | Command | Expected Run Time |
-| -------|------------- | --------------- | ------- | ----------------- |
-| fig2a.py | Python script for reproducing Figure 2A | [out/fig2a.pdf](out/fig2a.pdf) |  ```python fig2a.py``` | Instant |
-| fig2b.py | Python script for reproducing Figure 2B | [out/fig2b.pdf](out/fig2b.pdf) |  ```python fig2b.py``` | Instant |
-| fig2c.py | Python script for reproducing Figure 2C | [out/fig2c.pdf](out/fig2c.pdf) |  ```python fig2c.py``` | Instant |
-| fig3.py  | Python script for reproducing Figure 3  | [out/fig3.pdf](out/fig3.pdf)   |  ```python fig3.py```  | Instant |
-| fig4a.py | Python script for reproducing Figure 4A | [out/fig4a.pdf](out/fig4a.pdf) |  ```python fig4a.py``` | Instant |
+Python scripts for reporducing main manuscript figures and Figure S2.
+|  File  | Description  | Expected Output | Command |
+| -------|------------- | --------------- | ------- |
+| fig2a.py | Python script for reproducing Figure 2A | [out/fig2a.pdf](out/fig2a.pdf) |  ```python fig2a.py``` |
+| fig3.py  | Python script for reproducing Figure 3  | [out/fig3.pdf](out/fig3.pdf)   |  ```python fig3.py```  |
+| fig4.py | Python script for reproducing Figure 4 | [out/fig4.pdf](out/fig4.pdf) |  ```python fig4.py``` |
+| fig5.py  | Python script for reproducing Figure 5  | [out/fig5.pdf](out/fig5.pdf)   |  ```python fig5.py```  |
+| figS2.py | Python script for reproducing Figure S2 | [out/figS2.pdf](out/figS2.pdf) |  ```python figS2.py``` |
 
 ## Related Zenodo Repositories
 |   DOI  | Description |  URL |
 | -------|-------------|------|
 | 10.5281/zenodo.7837070 | Structural stability analysis summary | https://zenodo.org/record/7837070 |
-| 10.5281/zenodo.8028221 | CRISPR-Cas9 STING Descriptor Values | https://zenodo.org/record/8028221 |
+| 10.5281/zenodo.8028221 | CRISPR-Cas9 STING descriptor values | https://zenodo.org/record/8028221 |
 
 # Installation
 Install the required Python packages as listed below.
 
 # Requirements
-```matplotlib==3.5.3 numpy==1.24.3 shap==0.38.1 scipy==1.7.3 scikit-learn==1.0.2 pandas==1.5.2 xgboost==1.5.0```
+```matplotlib==3.5.3 numpy==1.24.3 shap==0.38.1 scipy==1.7.3 scikit-learn==1.0.2 pandas==1.5.2 xgboost==1.5.0 joblib==1.2.0```
 
 # Contacts
 jeffrey.kelvin.mak@cs.ox.ac.uk or peter.minary@cs.ox.ac.uk
