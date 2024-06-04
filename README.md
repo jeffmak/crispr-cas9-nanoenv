@@ -46,8 +46,8 @@ Python scripts for reporducing main manuscript figures and Figure S2.
 ## Related Zenodo Repositories
 |   DOI  | Description |  URL |
 | -------|-------------|------|
-| 10.5281/zenodo.7837070 | Structural stability analysis summary | https://zenodo.org/record/7837070 |
-| 10.5281/zenodo.8028221 | CRISPR-Cas9 STING descriptor values | https://zenodo.org/record/8028221 |
+| 10.5281/zenodo.11473926 | Structural stability analysis summary | https://zenodo.org/doi/10.5281/zenodo.7837069 |
+| 10.5281/zenodo.11472743 | CRISPR-Cas9 STING descriptor values | https://zenodo.org/doi/10.5281/zenodo.8028220 |
 
 # Installation
 Install the required Python packages as listed below.
