@@ -39,8 +39,8 @@ Python scripts for reporducing main manuscript figures and Figure S2.
 | -------|------------- | --------------- | ------- |
 | fig2a.py | Python script for reproducing Figure 2A | [out/fig2a.pdf](out/fig2a.pdf) |  ```python fig2a.py``` |
 | fig3.py  | Python script for reproducing Figure 3  | [out/fig3.pdf](out/fig3.pdf)   |  ```python fig3.py```  |
-| fig5.py | Python script for reproducing Figure 4 | [out/fig5.pdf](out/fig5.pdf) |  ```python fig5.py``` |
-| fig6.py  | Python script for reproducing Figure 5  | [out/fig6.pdf](out/fig6.pdf)   |  ```python fig6.py```  |
+| fig5.py | Python script for reproducing Figure 5 | [out/fig5.pdf](out/fig5.pdf) |  ```python fig5.py``` |
+| fig6.py  | Python script for reproducing Figure 6  | [out/fig6.pdf](out/fig6.pdf)   |  ```python fig6.py```  |
 | figS2.py | Python script for reproducing Figure S2 | [out/figS2.pdf](out/figS2.pdf) |  ```python figS2.py``` |
 
 ## Related Zenodo Repositories
