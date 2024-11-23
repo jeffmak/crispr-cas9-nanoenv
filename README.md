@@ -19,8 +19,8 @@ This repository contains the following CSV files in the ```data``` folder:
 | cas9_nucleotide_distances.csv | Distances between heteroduplex-proximal reisdues and heteroduplex nucleotides for all CMUT trajectories |
 | desc2desctype.csv | Lists the parent descriptor class, aggregation type and the (neighbor) descriptor class for all studied STING descriptors
 | example_input.csv | STING_CRISPR input feature values for the first PDB snapshot for trajectory CMUT1 |
-| fig4f.png | Raw image used for Figure 4F (PAM-distal visualization) |
-| fig4g.png | Raw image used for Figure 4G (PAM-proximal visualization) |
+| fig5f.png | Raw image used for Figure 5F (PAM-distal visualization) |
+| fig5g.png | Raw image used for Figure 5G (PAM-proximal visualization) |
 | hyperparam_search_5cv_results.csv | Performance results obtained after grid search and five-fold cross validation of the ML pipeline |
 | residue_dists.csv | Pairwise Cα-Cα residue distances for the 23 residues associated with STING_CRISPR's input features |
 | X.csv | STING_CRISPR input feature values for all 672 PDB snapshots |
@@ -39,8 +39,8 @@ Python scripts for reporducing main manuscript figures and Figure S2.
 | -------|------------- | --------------- | ------- |
 | fig2a.py | Python script for reproducing Figure 2A | [out/fig2a.pdf](out/fig2a.pdf) |  ```python fig2a.py``` |
 | fig3.py  | Python script for reproducing Figure 3  | [out/fig3.pdf](out/fig3.pdf)   |  ```python fig3.py```  |
-| fig4.py | Python script for reproducing Figure 4 | [out/fig4.pdf](out/fig4.pdf) |  ```python fig4.py``` |
-| fig5.py  | Python script for reproducing Figure 5  | [out/fig5.pdf](out/fig5.pdf)   |  ```python fig5.py```  |
+| fig5.py | Python script for reproducing Figure 4 | [out/fig5.pdf](out/fig5.pdf) |  ```python fig5.py``` |
+| fig6.py  | Python script for reproducing Figure 5  | [out/fig6.pdf](out/fig6.pdf)   |  ```python fig6.py```  |
 | figS2.py | Python script for reproducing Figure S2 | [out/figS2.pdf](out/figS2.pdf) |  ```python figS2.py``` |
 
 ## Related Zenodo Repositories
